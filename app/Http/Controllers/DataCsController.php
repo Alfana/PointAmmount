@@ -15,6 +15,60 @@ use Illuminate\Support\Facades\DB;
 
 class DataCsController extends Controller
 {
+    public function detunit(Request $request){
+        // return $request->all();
+        $idofficer =$request[0];
+        return DB::select("SELECT users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
+        FROM points 
+        INNER JOIN users ON points.id_user = users.id 
+        WHERE points.jabatan != '3' AND users.id_officer = '$idofficer'
+        GROUP BY users.id
+        ORDER BY users.unit DESC");
+    }
+
+    public function allunit(Request $request){
+        // return $request->all();
+        $idofficer =$request[0];
+        return DB::select("SELECT users.id_officer, users.unit, (SUM(points.point)-SUM(points.reedem)) AS point 
+        FROM points 
+        INNER JOIN users ON points.id_user = users.id 
+        WHERE points.jabatan != '3'
+        GROUP BY users.unit
+        ORDER BY point DESC");
+    }
+
+    public function tambahhadiah(Request $request){
+        // return $request->all();
+        $img = $request['gambar'];
+        $exploded = explode(",",$img);
+
+        if (Str::contains($exploded[0],'png')) {
+            $ext = 'png';
+        }elseif (Str::contains($exploded[0],'jpg')) {
+            $ext = 'jpg';
+        }elseif (Str::contains($exploded[0],'jpeg')) {
+            $ext = 'jpeg';
+        }
+
+        $decode = base64_decode($exploded[1]);
+        $namaFile = Str::random(20).".".$ext;
+        
+        $path = public_path()."/produk/".$namaFile;
+        
+        date_default_timezone_set("Asia/Jakarta");
+        $tanggal = date('Y/m/d');
+        $input = DB::table('rewards')->insertGetId([
+            'katergori_reward'  => $request['produk'],
+            'nama_reward'       => $request['nama'],
+            'point'             => $request['point'],
+            'gambar'            => $namaFile
+        ]);
+        if ($input) {
+            file_put_contents($path,$decode);
+            return ['Pesan'=>"Foto berhasil disimpan"];
+        }
+    }
+    
     public function inputreedem(Request $request){
         // return $request->all();
 
@@ -41,7 +95,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.produk, points.keterangan, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN mitras ON points.id_user = mitras.id_mitra 
-        WHERE points.id_user='$idmitra' AND points.id_officer='$idofficer' AND points.jabatan='3'w
+        WHERE points.id_user='$idmitra' AND users.id_officer='$idofficer' AND points.jabatan='3'
         GROUP BY points.produk");
     }
 
@@ -52,7 +106,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.produk, points.keterangan, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE points.id_user='$idcs' AND points.id_officer='$idofficer' AND points.jabatan='2'
+        WHERE points.id_user='$idcs' AND users.id_officer='$idofficer' AND points.jabatan='2'
         GROUP BY points.produk");
     }
 
@@ -63,7 +117,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.produk, points.keterangan, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE points.id_user='$idao' AND points.id_officer='$idofficer' AND points.jabatan='4'
+        WHERE points.id_user='$idao' AND users.id_officer='$idofficer' AND points.jabatan='4'
         GROUP BY points.produk");
     }
 
@@ -74,7 +128,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.id_point, users.name, points.jabatan, points.produk, points.noa, points.nominal, points.point, points.reedem, points.produk_reedem, points.qty, points.tanggal 
         FROM points 
         INNER JOIN users on points.id_user = users.id 
-        WHERE points.id_officer =  '$idofficer' AND points.jabatan = '2'
+        WHERE users.id_officer =  '$idofficer' AND points.jabatan = '2'
         ORDER BY points.id_point DESC");
     }
 
@@ -85,7 +139,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.id_point, users.name, points.jabatan, points.produk, points.noa, points.nominal, points.point, points.reedem, points.produk_reedem, points.qty, points.tanggal 
         FROM points 
         INNER JOIN users on points.id_user = users.id 
-        WHERE points.id_officer = '$idofficer' AND points.jabatan = '4'
+        WHERE users.id_officer = '$idofficer' AND points.jabatan = '4'
         ORDER BY points.id_point DESC");
     }
 
@@ -106,7 +160,7 @@ class DataCsController extends Controller
         return DB::select("SELECT *
         FROM points 
         INNER JOIN users on points.id_user = users.id 
-        WHERE points.id_officer =  '$idofficer' AND points.reedem != '0' OR points.jabatan = '4' AND points.jabatan = '2' 
+        WHERE users.id_officer =  '$idofficer' AND points.reedem != '0' OR points.jabatan = '4' AND points.jabatan = '2' 
         ORDER BY points.status_pengajuan ASC");
     }
 
@@ -369,10 +423,10 @@ class DataCsController extends Controller
     public function allpointcs(Request $request){
         // return $request->all();
         $idofficer =$request[0];
-        return DB::select("SELECT points.id_user, users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
+        return DB::select("SELECT users.id_officer, points.id_user, users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE jabatan=2 AND points.id_officer='$idofficer'
+        WHERE points.jabatan=2 AND users.id_officer='$idofficer'
         GROUP BY points.id_user DESC");
     }
 
@@ -382,7 +436,7 @@ class DataCsController extends Controller
         return DB::select("SELECT points.id_user, users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE jabatan=4 AND points.id_officer='$idofficer'
+        WHERE jabatan=4 AND users.id_officer='$idofficer'
         GROUP BY points.id_user DESC");
     }
 
@@ -393,7 +447,7 @@ class DataCsController extends Controller
         FROM (
             SELECT points.id_user, points.jabatan, points.id_officer, SUM(points.point) AS tpoint 
             FROM points 
-            WHERE points.stat = 't' AND points.jabatan=2 AND points.id_officer='$idofficer' 
+            WHERE points.stat = 't' AND points.jabatan=2 AND users.id_officer='$idofficer' 
             GROUP BY points.id_user
             ) AS p1 
         INNER JOIN users ON p1.id_user = users.id");
@@ -405,7 +459,7 @@ class DataCsController extends Controller
         FROM (
             SELECT points.id_user, points.jabatan, points.id_officer, SUM(points.point) AS tpoint 
             FROM points 
-            WHERE points.stat = 'k' AND points.jabatan=2 AND points.id_officer='$idofficer' 
+            WHERE points.stat = 'k' AND points.jabatan=2 AND users.id_officer='$idofficer' 
             GROUP BY points.id_user
             ) AS p1 
         INNER JOIN users ON p1.id_user = users.id");

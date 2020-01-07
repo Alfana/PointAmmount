@@ -49,6 +49,9 @@ Route::post('Ireedem', 'DataCsController@inputreedem');
 Route::post('setuju', 'DataCsController@setuju');
 Route::post('tolak', 'DataCsController@tolak');
 Route::post('disampaikan', 'DataCsController@disampaikan');
+Route::post('thadiah', 'DataCsController@tambahhadiah');
+Route::post('allunit', 'DataCsController@allunit');
+Route::post('detunit', 'DataCsController@detunit');
 
 
 Route::middleware('auth:api')->get('/user', function(Request $request){
