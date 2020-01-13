@@ -484,6 +484,13 @@ class DataCsController extends Controller
         return DB::select("SELECT * FROM rewards WHERE katergori_reward = '$produk'");
     }
 
+    public function hapusreward(Request $request){
+        // return $request->all();
+        $produk =$request[0];
+        $hps = DB::table('rewards')->where('id_reward',$produk)->delete();
+        return $hps;
+    }
+
     public function reedemreward(Request $request){
         // return $request->all();
         $produk = $request[0];

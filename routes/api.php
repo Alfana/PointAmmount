@@ -42,6 +42,7 @@ Route::post('detcs', 'DataCsController@detcs');
 Route::post('detao', 'DataCsController@detao');
 Route::post('detmitra', 'DataCsController@detmitra');
 Route::post('reward', 'DataCsController@reward');
+Route::post('hapusreward', 'DataCsController@hapusreward');
 Route::post('pointcstambah', 'DataCsController@pointcstambah');
 Route::post('pointcskurang', 'DataCsController@pointcskurang');
 Route::post('reedemreward', 'DataCsController@reedemreward');
