@@ -150,7 +150,7 @@ class DataCsController extends Controller
         FROM points 
         INNER JOIN mitras ON points.id_user = mitras.id_mitra 
         INNER JOIN users ON points.id_referensi = users.id
-        WHERE mitras.id_officer = '$idofficer' AND points.jabatan = '3'
+        WHERE points.jabatan = '3'
         ORDER BY points.id_point DESC");
     }
 
@@ -160,7 +160,7 @@ class DataCsController extends Controller
         return DB::select("SELECT *
         FROM points 
         INNER JOIN users on points.id_user = users.id 
-        WHERE users.id_officer =  '$idofficer' AND points.reedem != '0' OR points.jabatan = '4' AND points.jabatan = '2' 
+        WHERE users.unit = '$idofficer' AND points.reedem != '0' OR points.jabatan = '4' AND points.jabatan = '2' 
         ORDER BY points.status_pengajuan ASC");
     }
 
@@ -171,7 +171,7 @@ class DataCsController extends Controller
         FROM points 
         INNER JOIN mitras ON points.id_user = mitras.id_mitra 
         INNER JOIN users ON points.id_referensi = users.id
-        WHERE mitras.id_officer = '$idofficer' AND points.jabatan = '3' AND points.reedem != '0'
+        WHERE points.jabatan = '3' AND points.reedem != '0'
         ORDER BY points.status_pengajuan ASC");
     }
 
@@ -426,8 +426,9 @@ class DataCsController extends Controller
         return DB::select("SELECT users.id_officer, points.id_user, users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE points.jabatan=2 AND users.id_officer='$idofficer'
-        GROUP BY points.id_user DESC");
+        WHERE points.jabatan=2 AND users.unit='$idofficer'
+        GROUP BY points.id_user
+        ORDER BY points.point DESC");
     }
 
     public function allpointao(Request $request){
@@ -436,8 +437,9 @@ class DataCsController extends Controller
         return DB::select("SELECT points.id_user, users.name, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN users ON points.id_user = users.id 
-        WHERE jabatan=4 AND users.id_officer='$idofficer'
-        GROUP BY points.id_user DESC");
+        WHERE jabatan=4 AND users.unit='$idofficer'
+        GROUP BY points.id_user
+        ORDER BY points.point DESC");
     }
 
     public function pointcstambah(Request $request){
@@ -471,8 +473,9 @@ class DataCsController extends Controller
         return DB::select("SELECT points.id_user, mitras.nama_mitra, (SUM(points.point)-SUM(points.reedem)) AS point 
         FROM points 
         INNER JOIN mitras ON points.id_user = mitras.id_mitra 
-        WHERE jabatan=3 AND points.id_officer='$idofficer' 
-        GROUP BY points.id_user ASC");
+        WHERE jabatan=3 
+        GROUP BY points.id_user 
+        ORDER BY points.point DESC");
     }
 
     public function reward(Request $request){
